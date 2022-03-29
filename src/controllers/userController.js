@@ -23,7 +23,7 @@ export const postJoin = async (req, res) => {
     return res.redirect("/login");
   } catch (error) {
     return res.status(404).render("join", {
-      pageTitle: "join",
+      pageTitle,
       errorMessage: error._message,
     });
   }
@@ -33,13 +33,6 @@ export const getLogin = (req, res) =>
 export const postLogin = async (req, res) => {
   const { username, password } = req.body;
   const pageTitle = "Login";
-  const exist = await User.exists({ username });
-  if (!exist) {
-    return res.render(400).render("login", {
-      pageTitle,
-      errorMessage: "An account with this username does not exitst",
-    });
-  }
   const user = await User.findOne({ username });
   if (!user) {
     return res.status(400).render("login", {
