@@ -12,8 +12,8 @@ export const postJoin = async (req, res) => {
       errorMessage: "Password confirmation does not match",
     });
   }
-  const exist = await User.exists({ $or: [{ username }, { email }] });
-  if (exist) {
+  const exists = await User.exists({ $or: [{ username }, { email }] });
+  if (exists) {
     return res.status(400).render("join", {
       pageTitle,
       errorMessage: "This username/email is already taken",
@@ -24,7 +24,7 @@ export const postJoin = async (req, res) => {
     return res.redirect("/login");
   } catch (error) {
     return res.status(404).render("join", {
-      pageTitle,
+      pageTitle: "Upload Video",
       errorMessage: error._message,
     });
   }
@@ -34,7 +34,7 @@ export const getLogin = (req, res) =>
 export const postLogin = async (req, res) => {
   const { username, password } = req.body;
   const pageTitle = "Login";
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username, socialOnly: false });
   if (!user) {
     return res.status(400).render("login", {
       pageTitle,
@@ -87,22 +87,49 @@ export const finishGithubLogin = async (req, res) => {
     const userData = await (
       await fetch(`${apiUrl}/user`, {
         headers: {
-          Authorization: `${access_token}`,
+          Authorization: `token ${access_token}`,
         },
       })
     ).json();
     const emailData = await (
       await fetch(`${apiUrl}/user/emails`, {
         headers: {
-          Authorization: `${access_token}`,
+          Authorization: `token ${access_token}`,
         },
       })
     ).json();
-    const email = emailData.find(
+    const emailObj = emailData.find(
       (email) => email.primary === true && email.verified === true
     );
+    if (!emailObj) {
+      return res.redirect("/login");
+    }
+    const existingUser = await User.findOne({ email: emailObj.email });
+    if (existingUser) {
+      req.session.loggedIn = true;
+      req.session.user = existingUser;
+      return res.redirect("/");
+    }
+    try {
+      await User.create({
+        name: userData.name,
+        username: userData.login,
+        email: emailObj.email,
+        password: "",
+        socialOnly: true,
+        location: userData.location,
+      });
+      req.session.loggedIn = true;
+      req.session.user = user;
+      return res.redirect("/");
+    } catch (error) {
+      return res.status(404).render("login", {
+        pageTitle: "Login",
+        errorMessage: error._message,
+      });
+    }
   } else {
-    return res.rendirect("/login");
+    return res.redirect("/login");
   }
 };
 export const edit = (req, res) => res.send("Edit User");
