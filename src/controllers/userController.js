@@ -133,16 +133,35 @@ export const getEdit = (req, res) => {
 export const postEdit = async (req, res) => {
   const {
     session: {
-      user: { _id },
+      user: { _id, email: sessionEmail, username: sessionUsername },
     },
     body: { name, email, username, location },
   } = req;
-  await User.findByIdAndUpdate(_id, {
-    name,
-    username,
-    email,
-    location,
-  });
-  return res.render("edit-profile", { pageTitle: "Edit Profile" });
+  // code challenge
+  // 만약에 email or username을 바꿨을 때 (session과 body가 다름)
+  if (sessionEmail !== email || sessionUsername !== username) {
+    const emailExist = await User.findOne({ email });
+    const userExist = await User.findOne({ username });
+    // 데이터베이스에 이미 존재하는 email or username이라면
+    if (emailExist || userExist) {
+      // 오류 메시지 띄우기
+      return res.status(404).render("edit-profile", {
+        pageTitle: "Edit Profile",
+        errorMessage: "email or username is already taken",
+      });
+    }
+  }
+  const updateUser = await User.findByIdAndUpdate(
+    _id,
+    {
+      name,
+      username,
+      email,
+      location,
+    },
+    { new: true }
+  );
+  req.session.user = updateUser;
+  return res.redirect("/users/edit");
 };
 export const see = (req, res) => res.send("See User");
