@@ -140,6 +140,7 @@ export const postEdit = async (req, res) => {
   // code challenge
   // 만약에 email or username을 바꿨을 때 (session과 body가 다름)
   if (sessionEmail !== email || sessionUsername !== username) {
+    // 이미 있는 email or username인지 찾아보기
     const emailExist = await User.findOne({ email });
     const userExist = await User.findOne({ username });
     // 데이터베이스에 이미 존재하는 email or username이라면
@@ -163,5 +164,14 @@ export const postEdit = async (req, res) => {
   );
   req.session.user = updateUser;
   return res.redirect("/users/edit");
+};
+export const getChangePassword = (req, res) => {
+  if (req.session.user.socialOnly === true) {
+    return res.redirect("/");
+  }
+  return res.render("users/change-password", { pageTitle: "Change Password" });
+};
+export const postChangePassword = (req, res) => {
+  return res.redirect("/");
 };
 export const see = (req, res) => res.send("See User");
