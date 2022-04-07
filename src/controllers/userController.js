@@ -136,6 +136,7 @@ export const postEdit = async (req, res) => {
       user: { _id, email: sessionEmail, username: sessionUsername },
     },
     body: { name, email, username, location },
+    file: { path },
   } = req;
   // code challenge
   // 만약에 email or username을 바꿨을 때 (session과 body가 다름)
@@ -155,6 +156,7 @@ export const postEdit = async (req, res) => {
   const updateUser = await User.findByIdAndUpdate(
     _id,
     {
+      avatarUrl: path,
       name,
       username,
       email,
