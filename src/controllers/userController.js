@@ -107,7 +107,7 @@ export const finishGithubLogin = async (req, res) => {
     let user = await User.findOne({ email: emailObj.email });
     if (!user) {
       user = await User.create({
-        avatarUrl: userData.avatarUrl,
+        avatarUrl: userData.avatar_url,
         name: userData.name,
         username: userData.login,
         email: emailObj.email,
@@ -133,10 +133,10 @@ export const getEdit = (req, res) => {
 export const postEdit = async (req, res) => {
   const {
     session: {
-      user: { _id, email: sessionEmail, username: sessionUsername },
+      user: { _id, email: sessionEmail, username: sessionUsername, avatarUrl },
     },
     body: { name, email, username, location },
-    file: { path },
+    file,
   } = req;
   // code challenge
   // 만약에 email or username을 바꿨을 때 (session과 body가 다름)
@@ -156,7 +156,7 @@ export const postEdit = async (req, res) => {
   const updateUser = await User.findByIdAndUpdate(
     _id,
     {
-      avatarUrl: path,
+      avatarUrl: file ? file.path : avatarUrl,
       name,
       username,
       email,
