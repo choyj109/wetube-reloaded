@@ -2,17 +2,15 @@ const path = require("path");
 
 module.exports = {
   entry: "./src/client/js/main.js",
+  mode: "development",
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "assets", "js"),
   },
   module: {
-    loader: "babel-loader",
-    mode: "development",
     rules: [
       {
-        test: /\.m?js$/,
-        exclude: /node_modules/,
+        test: /\.js$/,
         use: {
           loader: "babel-loader",
           options: {
