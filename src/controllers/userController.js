@@ -125,7 +125,7 @@ export const finishGithubLogin = async (req, res) => {
   }
 };
 export const logout = (req, res) => {
-  req.session.destroy();
+  req.session.loggedIn = false;
   req.flash("info", "Bye Bye");
   return res.redirect("/");
 };
@@ -183,6 +183,7 @@ export const postChangePassword = async (req, res) => {
     },
     body: { oldPassword, newPassword, newPassword1 },
   } = req;
+  const user = await User.findById(_id);
   const ok = await bcrypt.compare(oldPassword, password);
   if (!ok) {
     return res.status(400).render("users/change-password", {
@@ -196,11 +197,9 @@ export const postChangePassword = async (req, res) => {
       errorMessage: "The Password does not match the confirmation",
     });
   }
-  const user = await User.findById(_id);
   user.password = newPassword;
   await user.save();
   req.flash("info", "Password updated");
-  req.session.user.password = user.password;
   return res.redirect("/users/logout");
 };
 export const see = async (req, res) => {

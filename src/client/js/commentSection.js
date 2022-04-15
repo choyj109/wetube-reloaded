@@ -1,5 +1,3 @@
-import { deleteComment } from "../../controllers/videoController";
-
 const videoContainer = document.getElementById("videoContainer");
 const form = document.getElementById("commentForm");
 const deleteBtn = document.querySelectorAll(".deleteBtn");
@@ -14,7 +12,7 @@ const addComment = (text, id) => {
   const span = document.createElement("span");
   span.innerText = ` ${text}`;
   const span2 = document.createElement("span");
-  span2.classList.add("deleteBtn");
+  span2.className = "deleteBtn";
   span2.innerText = "❌";
   newComment.appendChild(icon);
   newComment.appendChild(span);
@@ -38,29 +36,12 @@ const handleSubmit = async (event) => {
     body: JSON.stringify({ text }),
   });
   if (response.status === 201) {
-    const { newCommentId } = await response.json();
     textarea.value = "";
+    const { newCommentId } = await response.json();
     addComment(text, newCommentId);
   }
 };
 
 if (form) {
   form.addEventListener("submit", handleSubmit);
-}
-
-const handleDeleteComment = (event) => {
-  const li = event.srcElement.parentNode;
-  const {
-    dataset: { id: commentId },
-  } = li;
-  await fetch(`/api/comments/${commentId}/delete`, {
-    method: "DELETE",
-  })
-  li.remove();
-};
-
-if(deleteComment) {
-  deleteComment.forEach((deleteComment) => {
-    deleteComment.addEventListener("click", handleDelteComment)
-  })
 }
