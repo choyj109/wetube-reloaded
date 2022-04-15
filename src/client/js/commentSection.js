@@ -20,6 +20,13 @@ const addComment = (text, id) => {
   videoComments.prepend(newComment);
 };
 
+const deleteComment = (text, id) => {
+  const videoComments = document.querySelector(".video__comments ul");
+  const comment = document.querySelectorAll("li");
+  comment.dataset.id = id;
+  videoComments.removeChild(comment);
+};
+
 const handleSubmit = async (event) => {
   event.preventDefault();
   const textarea = form.querySelector("textarea");
@@ -39,6 +46,21 @@ const handleSubmit = async (event) => {
     textarea.value = "";
     const { newCommentId } = await response.json();
     addComment(text, newCommentId);
+  }
+};
+
+const handelDelete = async (event) => {
+  const newComment = document.querySelectorAll(".video__comments li");
+  const commentId = newComment.dataset.id;
+  const response = await fetch(`/api/videos/${commentId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.status === 200) {
+    const {} = await response.json();
+    deleteComment();
   }
 };
 
