@@ -45,7 +45,8 @@ const handleSubmit = async (event) => {
   if (response.status === 201) {
     textarea.value = "";
     const { newCommentId } = await response.json();
-    addComment(text, newCommentId);
+    const { span2 } = await response.json();
+    addComment(text, newCommentId, span2);
   }
 };
 
@@ -59,8 +60,8 @@ const handelDelete = async (event) => {
     },
   });
   if (response.status === 200) {
-    const {} = await response.json();
-    deleteComment();
+    const { newComment } = await response.json();
+    deleteComment(newComment);
   }
 };
 
